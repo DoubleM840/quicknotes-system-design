@@ -9,7 +9,6 @@ async function request(url, options = {}) {
         }
         return await response.json();
     } catch (error) {
-        // Re-throw network errors or HTTP errors for caller to handle
         throw error;
     }
 }
@@ -31,9 +30,7 @@ function setStatus(message, type = "") {
 function setLoading(isLoading) {
     loadBtn.disabled = isLoading;
     submitBtn.disabled = isLoading;
-    if (isLoading) {
-        setStatus("Loading...", "loading");
-    }
+    if (isLoading) setStatus("Processing...", "loading");
 }
 
 // --- GET: LOAD NOTES ---
@@ -54,7 +51,6 @@ async function loadNotes() {
         setStatus(`Loaded ${notes.length} notes from the server.`, "success");
     } catch (error) {
         setStatus(`Error loading notes: ${error.message}`, "error");
-        console.error(error);
     } finally {
         setLoading(false);
     }
@@ -67,7 +63,6 @@ noteForm.addEventListener("submit", async (e) => {
     const title = titleInput.value.trim();
     const body = bodyInput.value.trim();
     
-    // Validation
     if (!title) {
         setStatus("Title is required.", "error");
         return;
@@ -86,15 +81,12 @@ noteForm.addEventListener("submit", async (e) => {
             body: JSON.stringify({ title, body, userId: 1 })
         });
         
-        // Prepend new note to list
         const li = createNoteElement(newNote);
         notesList.prepend(li);
-        
         setStatus(`Note created (status 201, id ${newNote.id}).`, "success");
         noteForm.reset();
     } catch (error) {
         setStatus(`Error creating note: ${error.message}`, "error");
-        console.error(error);
     } finally {
         setLoading(false);
     }
@@ -118,7 +110,6 @@ function deleteNote(id, element) {
         })
         .catch(error => {
             setStatus(`Error deleting note: ${error.message}`, "error");
-            console.error(error);
         })
         .finally(() => setLoading(false));
 }
@@ -129,10 +120,10 @@ function createNoteElement(note) {
     li.dataset.id = note.id;
     
     const title = document.createElement("strong");
-    title.textContent = note.title; // Safe textContent usage
+    title.textContent = note.title;
     
     const body = document.createElement("p");
-    body.textContent = note.body || ""; // Safe textContent usage
+    body.textContent = note.body || "";
     
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "Delete";
@@ -147,9 +138,7 @@ function createNoteElement(note) {
 }
 
 function renderNotes(notes) {
-    notes.forEach(note => {
-        notesList.appendChild(createNoteElement(note));
-    });
+    notes.forEach(note => notesList.appendChild(createNoteElement(note)));
 }
 
 // Initialize
