@@ -98,6 +98,9 @@ function deleteNote(id, element) {
     
     setLoading(true);
     
+    // JSONPlaceholder is a fake API - it simulates DELETE but doesn't 
+    // actually persist changes to a real database. In production, this 
+    // would send a real DELETE request to our backend server.
     request(`${API_URL}/${id}`, { method: "DELETE" })
         .then(() => {
             element.remove();
